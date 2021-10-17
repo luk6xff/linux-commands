@@ -24,7 +24,7 @@ All the commands I use on my daily basis
 
 
 ## User
-* Become system administrator:
+* Become a system admin
 ```
 sudo -s
 sudo su
