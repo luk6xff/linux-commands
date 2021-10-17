@@ -11,13 +11,14 @@ All the commands I use on my daily basis
   - [File System](#file-system)
   - [Performance](#performance)
   - [Command Line](#command-line) TODO
-  - [Bash](#bash) TODO
+  - [Bash](#bash)
   - [Networking](#networking) TODO
   - [Netcat](#netcat) TODO
-  - [Cron](#cron) TODO
+  - [Cron](#cron)
+  - [SSH](#ssh)
   - [Python](#python)
   - [Tmux](#tmux)
-  - [Git](#git) TODO
+  - [Git](#git)
   - [FFMpeg](#ffmpeg) TODO
 
 
@@ -138,18 +139,18 @@ who -umH
 ## Docker
 * List all images
 ```
-sudo docker images
-sudo docker image ls
+docker images
+docker image ls
 ```
 
 * Search images online
 ```
-sudo docker search $IMAGE_NAME
+docker search $IMAGE_NAME
 ```
 
 * Run a container from an image
 ```
-sudo docker run --name $CONTAINER_NAME [OPTIONS...] $IMAGE_NAME $COMMAND $ARGUMENTS
+docker run --name CONTAINER_ID_OR_NAME [OPTIONS...] $IMAGE_NAME $COMMAND $ARGUMENTS
 # useful options:
 ## -i Keep stdin open even if not attached
 ## -d Run container in background
@@ -158,29 +159,43 @@ sudo docker run --name $CONTAINER_NAME [OPTIONS...] $IMAGE_NAME $COMMAND $ARGUME
 
 * Attach to a running container
 ```
-sudo docker exec -it $CONTAINER_NAME /bin/bash
+docker exec -it CONTAINER_ID_OR_NAME /bin/bash
 ```
 
 * List running container
 ```
-sudo docker ps # -a for all
+docker ps # -a for all
 ```
 
 * Start and stop container
 ```
-sudo docker start/stop $CONTAINER_NAME
+docker start/stop CONTAINER_ID_OR_NAME
 ```
 
 * Kill all containers
 ```
-sudo docker kill $(docker ps -q)
+docker kill $(docker ps -q)
+```
+
+* Remove container
+```
+docker rmi CONTAINER_ID_OR_NAME
 ```
 
 * Remove all containers
 ```
-sudo docker rm $(docker ps -q -a) # and -f for force remove even if it is running
+docker rm $(docker ps -q -a)  # -f for force remove even if it is running
 ```
 
+* Export (save) an image
+```
+docker save IMAGE_NAME > IMAGE_NAME.tar.gz
+```
+
+* Load (import) an image
+```
+docker load -i IMAGE_NAME.tar.gz
+```
 
 
 ## Hardware
@@ -540,6 +555,231 @@ cat /proc/sys/fs/file-nr
 
 
 
+## Bash
+* Adding aliases
+```
+# In your ~/.bashrc or ~/.bash_aliases
+alias dev='ssh foo@dev.example.com -p 22000'
+```
+
+* Make bash history 10,0000
+```
+export HISTSIZE=100000 SAVEHIST=100000 HISTFILE=~/.bash_history
+```
+
+* Prompt for input in a bash script
+```
+read -p “Do you want to continue?” variable
+```
+
+* Cut off the first column in a text file
+```
+cat filename | cut -d" " -f1
+```
+
+* Redirection of output
+```
+&> for redirection, it redirects both the standard output and standard error
+```
+
+* Find what a command does
+```
+whatis
+eg. whatis grep
+```
+
+* Navigation
+```
+ctrl-w - delete the last word
+ctrl-u - delete start of the line
+ctrl-l - clear the screen
+cd -  : go back to previous working dir
+option-left/right - move word by word
+```
+
+* Loop through folders
+```
+for d in */ ; do
+    echo "$d"
+    cd $d
+    <<comand here>>
+    cd ..
+done
+```
+
+* Base64 Decode
+```
+echo "word" | base64 -d
+```
+
+* Set variable
+```
+FOO="bar"
+```
+
+* Unset variable
+```
+unset FOO
+```
+
+* Recalling your variable by prepending it with a dollar sign ($).
+```
+echo $FOO
+```
+
+* Preserves any special characters that might appear in the variable;
+```
+echo "${FOO}"
+```
+
+* Bash loop
+```
+for f in * ;
+    do file $f ;
+done
+
+# Or 1 liner:
+
+for f in * ; do convert $f -scale 33% tmp/$f ; done
+```
+
+* Redirects
+```
+# cmd 1> file                         # Redirect stdout to file.
+# cmd 2> file                         # Redirect stderr to file.
+# cmd 1>> file                        # Redirect and append stdout to file.
+# cmd &> file                         # Redirect both stdout and stderr to file.
+# cmd >file 2>&1                      # Redirects stderr to stdout and then to file.
+# cmd1 | cmd2                         # pipe stdout to cmd2
+# cmd1 2>&1 | cmd2                    # pipe stdout and stderr to cmd2
+```
+
+* Variables
+```
+MESSAGE="Hello World"                        # Assign a string
+PI=3.1415                                    # Assign a decimal number
+```
+
+* Arguments
+```
+$0, $1, $2, ...                              # $0 is the command itself
+$#                                           # The number of arguments
+$*                                           # All arguments (also $@)
+```
+
+* Special Variables
+```
+$$                                           # The current process ID
+$?                                           # exit status of last command
+eg:
+if [ $? != 0 ]; then
+    echo "command failed"
+fi
+mypath=`pwd`
+mypath=${mypath}/file.txt
+echo ${mypath##*/}                           # Display the filename only
+echo ${mypath%%.*}                           # Full path without extention
+foo=/tmp/my.dir/filename.tar.gz
+path = ${foo%/*}                             # Full path without extention
+var2=${var:=string}                          # Use var if set, otherwise use string
+                                             # Assign string to var and then to var2.
+size=$(stat -c%s "$file")                    # Get file size in bourne script
+filesize=${size:=-1}
+```
+
+* Constructs
+```
+# FOR LOOP
+for file in `ls`
+do
+    echo $file
+done
+
+# WHILE LOOP
+count=0
+while [ $count -lt 5 ]; do
+    echo $count
+    sleep 1
+    count=$(($count + 1))
+done
+
+# FUNCTIONS
+myfunction() {
+    # $1 is first argument of the function
+    find . -type f -name "*.$1" -print
+}
+myfunction "txt"
+
+```
+
+* Assigning output of one command to variable
+```
+#!/bin/bash
+for node in $(cat nodes.txt)
+do
+    node_name=$(echo $node | tr -d '"');
+    echo $node_name
+done
+```
+
+* Checking for existence of arguments
+```
+if [ $# -eq 0 ]; then
+    echo "Please enter an argument"
+    exit 1
+fi
+```
+
+* Check for environment variable
+```
+if [ -z "${GITHUB_TOKEN}" ]; then
+    echo "Missing GITHUB_TOKEN environment variable"
+    exit 1
+fi
+```
+
+* Checking the output of last command and prompt to continue
+```
+if [[ $? -ne 0 ]]; then
+  echo "command failed"
+  read ABCD
+fi
+```
+
+* Iterate over a list
+```
+list=(a1 a2 a3)
+for n in ${list[@]}; do
+    echo "*** $n ***" ;
+done
+```
+
+* !^
+```
+!^ maps to the first argument of your latest command.
+```
+
+* !$
+```
+!$ maps to the last argument of your latest command.
+```
+
+
+* Brace expansion
+
+```
+# Expanded into ~/test/pics , ~/test/sounds, ~/test/sprites
+mkdir ~/test/{pics,sounds,sprites}
+
+# Create noise-1.mp3 to noise-5.mp3
+touch ~/test/sounds/noise-{1..5}.mp3
+
+# pic1.jpg pic3.jpg pic5.jpg pic7.jpg pic9.jpg
+touch ~/test/pics/pic{1..10..2}.jpg
+```
+
+
+
 ## Performance
 * Show running processes
 ```
@@ -577,6 +817,54 @@ strace -f -p $PID
 * How much memory is left
 ```
 free -m
+```
+
+
+
+## Cron
+* Format
+```
+# [minute] [hour] [day] [month] [weekday] [command to be executed]
+#    *       *      *      *        *
+#    |       |      |      |        |
+#    |       |      |      |        +------ day of week (0-6) (Sunday=0)
+#    |       |      |      |
+#    |       |      |      +--------------- month (1-12)
+#    |       |      |
+#    |       |      +---------------------- day of month (1-31)
+#    |       |
+#    |       +----------------------------- hour (0-23)
+#    |
+#    +------------------------------------- min (0-59)
+```
+
+* Crontab
+```
+# Adding tasks easily (@reboot - on every reboot)
+echo "@reboot echo hello" | crontab
+
+# Open in editor
+crontab -e
+
+# List tasks
+crontab -l [-u user]
+```
+
+
+## SSH
+* Generate SSH key
+```
+ssh-keygen -t rsa -b 4096 -C "luk6xff@gmail.com"
+```
+
+* Retrieve the public key from a SSH private key
+```
+pip install -U pip
+```
+
+* SSH Login with username and port
+```
+ssh username@10.159.10.11 -p 22
 ```
 
 
@@ -619,6 +907,103 @@ pip install -E venv -r requirements.txt
 * Share all files in current folder over port 8080
 ```
 python -m SimpleHTTPServer 8080
+```
+
+
+
+## Git
+
+* Configure Git
+```
+# Set your name
+git config --global user.name <YOUR NAME>
+
+# Set your email
+git config --global user.email <YOUR EMAIL ADDRESS>
+```
+
+
+* Remove a file (or folder)
+```
+git rm -r foo.txt
+```
+
+* Merge a branch into the active branch
+```
+git merge [branch name]
+```
+
+* Merge a branch into a target branch
+```
+git merge [source branch] [target branch]
+```
+
+* Delete a remote branch
+```
+git push origin --delete [branch name]
+```
+
+* Add a remote repository
+```
+git remote add origin ssh://git@github.com/[username]/[repository-name].git
+```
+
+* Set a repository's origin branch to SSH
+```
+git remote set-url origin ssh://git@github.com/[username]/[repository-name].git
+```
+
+* View changes (detailed)
+```
+git log --summary
+```
+
+* Undo your most recent commit and put those changes back into staging
+```
+git reset --soft HEAD~1
+```
+
+* Completely delete the commit and throw away any changes
+```
+git reset --hard HEAD~1
+```
+
+* Squash commits (Last 4 commits not pushed yet to be squashed into one)
+```
+git rebase -i HEAD~4
+```
+
+* Tagging
+```
+# Fetch all the tags
+git fetch --tags
+
+# Create
+git tag -a v1.0.0 -m "Initial release"
+
+# Push
+git push --tags
+
+# Delete
+git tag -d v1.0.0
+
+# Remote
+git push origin :refs/tags/v1.0.0
+```
+
+* Removes and deletes untracked files from the working tree
+```
+git clean -f
+```
+
+* Remove all untracked directories
+```
+git clean -fd
+```
+
+* Reverts all commits after specified commit, while keeping local changes
+```
+git reset <commitID>
 ```
 
 
