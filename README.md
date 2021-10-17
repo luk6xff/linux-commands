@@ -24,7 +24,6 @@ All the commands I use on my daily basis
 
 
 ## User
----
 * Become system administrator:
 ```
 sudo -s
@@ -105,53 +104,51 @@ last reboot  # shows last reboot
 ```
 
 * Show all the groups of a current user
-```sh
+```
 groups $USER
 ```
 
 * Add a current user to Sudo
-```sh
+```
 usermod -a -G sudo $USER
 ```
 
 * Add path to system path
-```sh
+```
 export PATH=$PATH:/usr/local/bin
 ```
 
 * Print usernames of logged in users:
-```sh
+```
 users
 ```
 
 * Show info of the current user
-```sh
+```
 id
 ```
 
 * Show all users and host where logged in from
-```sh
+```
 who -umH
 ```
 
 
 
 ## Docker
----
-
-* List all images in local
-```sh
+* List all images
+```
 sudo docker images
 sudo docker image ls
 ```
 
 * Search images online
-```sh
+```
 sudo docker search $IMAGE_NAME
 ```
 
 * Run a container from an image
-```sh
+```
 sudo docker run --name $CONTAINER_NAME [OPTIONS...] $IMAGE_NAME $COMMAND $ARGUMENTS
 # useful options:
 ## -i Keep stdin open even if not attached
@@ -160,35 +157,33 @@ sudo docker run --name $CONTAINER_NAME [OPTIONS...] $IMAGE_NAME $COMMAND $ARGUME
 ```
 
 * Attach to a running container
-```sh
+```
 sudo docker exec -it $CONTAINER_NAME /bin/bash
 ```
 
 * List running container
-```sh
+```
 sudo docker ps # -a for all
 ```
 
 * Start and stop container
-```sh
+```
 sudo docker start/stop $CONTAINER_NAME
 ```
 
 * Kill all containers
-```sh
+```
 sudo docker kill $(docker ps -q)
 ```
 
 * Remove all containers
-```sh
+```
 sudo docker rm $(docker ps -q -a) # and -f for force remove even if it is running
 ```
 
 
 
 ## Hardware
----
-
 * Print full date and time:
 ```
 date
@@ -302,15 +297,13 @@ dmidecode                          # Show DMI/SMBIOS: hw info from the BIOS
 ```
 
 * Print your hardware specification in html format
-```sh
+```
 sudo lshw -html > ~/hw_specs.html && firefox ~/hw_specs.html
 ```
 
 
 
 ## File System
----
-
 * Show inodes of files and folders
 ```
 ls -i
@@ -378,7 +371,6 @@ dd if=/dev/zero of=/dev/xvdf bs=1M
 
 
 * Mount a new file system
-
 ```
 fdisk /dev/hda1  # Create new partision
 mkfs /dev/hda1   # Create file system
@@ -549,9 +541,8 @@ cat /proc/sys/fs/file-nr
 
 
 ## Performance
----
 * Show running processes
-```sh
+```
 ps –ax
 ps –eaf
 pstree
@@ -559,17 +550,17 @@ ps aux
 ```
 
 * Show running processes with open network connections
-```sh
+```
 lsof -i
 ```
 
 * Show what files a process has open
-```sh
+```
 lsof -p $PID
 ```
 
 * Show open tcp sockets
-```sh
+```
 lsof -nPi tcp
 ```
 
@@ -591,9 +582,7 @@ free -m
 
 
 ## Python
-
-
-* Update pip (Python package manager):
+* Update pip:
 ```
 pip install -U pip
 ```
@@ -634,7 +623,6 @@ python -m SimpleHTTPServer 8080
 
 
 ## Tmux
----
 * Commands
 ```
 tmux ls = list sessions
