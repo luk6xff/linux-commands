@@ -859,7 +859,7 @@ ssh-keygen -t rsa -b 4096 -C "luk6xff@gmail.com"
 
 * Retrieve the public key from a SSH private key
 ```
-pip install -U pip
+ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub
 ```
 
 * SSH Login with username and port
