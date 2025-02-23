@@ -281,7 +281,7 @@ sudo dd if=/dev/sdb of=/dev/sda bs=64K status=progress conv=noerror,sync
 ```
 sudo fdisk -l # To list all installed drives
 sudo umount /dev/sdX
-sudo dd if=kali-linux-2024.4-live-amd64.iso of=/dev/sdX conv=fsync bs=4M status=progress
+sudo dd if=kali-linux-2024.4-live-amd64.iso of=/dev/sdX conv=noerror,fsync bs=4M status=progress
 ```
 
 * Modify kernel parameters
