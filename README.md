@@ -280,8 +280,8 @@ sudo dd if=/dev/sdb of=/dev/sda bs=64K status=progress conv=noerror,sync
 * Make a bootable Linux USB from ISO
 ```
 sudo fdisk -l # To list all installed drives
-sudo umount /dev/sdc
-sudo dd if=linuxmint-20-cinnamon-64bit.iso of=/dev/sdc bs=1M`
+sudo umount /dev/sdX
+sudo dd if=kali-linux-2024.4-live-amd64.iso of=/dev/sdX conv=fsync bs=4M status=progress
 ```
 
 * Modify kernel parameters
