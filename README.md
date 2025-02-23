@@ -279,6 +279,7 @@ sudo dd if=/dev/sdb of=/dev/sda bs=64K status=progress conv=noerror,sync
 
 * Make a bootable Linux USB from ISO
 ```
+sudo fdisk -l # To list all installed drives
 sudo umount /dev/sdc
 sudo dd if=linuxmint-20-cinnamon-64bit.iso of=/dev/sdc bs=1M`
 ```
